@@ -1,2 +1,6 @@
-# 忽略idea
+# 忽略ide配置
 .idea/
+.vscode/
+
+# 忽略组件
+node_modules/
