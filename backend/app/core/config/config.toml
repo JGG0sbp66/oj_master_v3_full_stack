@@ -1,0 +1,6 @@
+[database]
+host = "localhost"
+port = "5432"
+user = "postgre"
+password = "${DB_PASSWORD}"
+database = "oj_master_v3"
