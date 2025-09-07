@@ -2,5 +2,5 @@
 host = "localhost"
 port = "5432"
 user = "postgre"
-password = "${DB_PASSWORD}"
+password = "@format {env[DB_PASSWORD]}"
 database = "oj_master_v3"
