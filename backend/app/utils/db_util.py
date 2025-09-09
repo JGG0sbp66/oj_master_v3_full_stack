@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import settings
 
@@ -48,3 +48,20 @@ class AsyncDatabase:
             except Exception:
                 await session.rollback()  # 异常回滚事务
                 raise
+
+# 全局变量, 初始化延迟
+# TODO 考虑单独建立一个地方用于各种工具的初始化
+db_instance: Optional[AsyncDatabase] = None
+
+def init_database() -> AsyncDatabase:
+    """初始化数据库连接, 在应用启动时调用"""
+    global db_instance
+    if db_instance is None:
+        db_url = f"postgresql+psycopg_async://{settings.database.user}:{settings.database.password}@{settings.database.host}:{settings.database.port}/{settings.database.db}"
+        db_instance = AsyncDatabase(db_url)
+
+    return db_instance
+
+def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    """获取数据库会话"""
+    return db_instance.get_db()
