@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from app.utils.db_util import AsyncDatabase
 from app.core.config import settings
 from app.utils.logger_util import init_logger
@@ -52,4 +53,19 @@ class InitUtils:
         db_url = f"postgresql+psycopg_async://{settings.database.user}:{settings.database.password}@{settings.database.host}:{settings.database.port}/{settings.database.db}"
         self.db_instance = AsyncDatabase(db_url, self.loggers['utils'])
         self.loggers['utils'].info(f"数据库连接初始化完成, 数据库地址: {db_url}")
-    
+
+# 创建全局工具实例
+init_utils = InitUtils()
+
+@asynccontextmanager
+async def lifespan():
+    # 启动时初始化
+    await init_utils.initialize()
+    yield
+    # 关闭时释放资源
+    await init_utils.dispose()
+
+# 全局依赖项
+async def get_db():
+    """获取数据库实例的依赖项"""
+    return init_utils.db_instance.get_db()

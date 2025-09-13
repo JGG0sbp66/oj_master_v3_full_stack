@@ -1,6 +1,7 @@
 from fastapi_offline import FastAPIOffline
+from app.utils import lifespan
 
-app = FastAPIOffline()
+app = FastAPIOffline(lifespan=lifespan)
 
 
 @app.get("/")
