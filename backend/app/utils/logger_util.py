@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import colorlog
 
 def init_logger(logger_name: str, log_file: str, level=logging.INFO, mode='a', is_console=False):
     """
@@ -8,7 +9,7 @@ def init_logger(logger_name: str, log_file: str, level=logging.INFO, mode='a', i
     Args:
         logger_name (str): logger的名称
         log_file (str, optional): 日志文件路径。如果为None，则只输出到控制台
-        level (int, optional): 日志级别，默认为DEBUG
+        level (int, optional): 日志级别，默认为INFO
         mode (str, optional): 文件模式，'a'为追加，'w'为覆盖，默认为'a'
 
     Returns:
@@ -27,9 +28,20 @@ def init_logger(logger_name: str, log_file: str, level=logging.INFO, mode='a', i
     
     # 如果开启控制台模式， 就输出到控制台
     if is_console:
-        console_handler = logging.StreamHandler()
+        console_formatter = colorlog.ColoredFormatter(
+            "%(light_blue)s%(asctime)s%(reset)s - %(name)s - %(log_color)s%(levelname)s%(reset)s - %(message)s",
+            datefmt='%Y-%m-%d %H:%M:%S',
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'bold_red',
+            }
+        )
+        console_handler = colorlog.StreamHandler()
         console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
+        console_handler.setFormatter(console_formatter)
         logger.addHandler(console_handler)
     
     # 输出到指定文件

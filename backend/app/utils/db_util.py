@@ -31,7 +31,9 @@ class AsyncDatabase:
         self.init_db()
 
     def init_db(self):
-        """初始化数据库引擎和会话工厂"""
+        """
+        初始化数据库引擎和会话工厂
+        """
         # 创建异步数据库引擎
         self.engine = create_async_engine(
             self.db_url,
@@ -54,7 +56,9 @@ class AsyncDatabase:
     
     @asynccontextmanager
     async def get_db(self) -> AsyncGenerator[AsyncSession, None]:
-        """异步上下文管理器, 提供数据库会话"""
+        """
+        异步上下文管理器, 提供数据库会话
+        """
         async with self.async_session() as session:
             try:
                 yield session
@@ -64,7 +68,9 @@ class AsyncDatabase:
                 raise
     
     async def dispose(self):
-        """异步关闭数据库连接"""
+        """
+        异步关闭数据库连接
+        """
         try:
             if self.engine:
                 await self.engine.dispose()

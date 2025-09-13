@@ -3,34 +3,53 @@ from app.core.config import settings
 from app.utils.logger_util import init_logger
 import logging
 from typing import Dict
+from singleton_decorator import singleton
 
+
+@singleton
 class InitUtils:
     """工具类初始化管理"""
 
     def __init__(self):
-        """初始化异步数据库实例"""
+        """
+        初始化异步数据库实例
+        """
+        self.isInitialized = False
         self.db_instance: AsyncDatabase | None = None
         self.loggers: Dict[str, logging.Logger] = {}
     
     async def initialize(self):
-        """异步初始化所有组件"""
+        """
+        异步初始化所有工具
+        """
+        if self.isInitialized:
+            return
+        self.isInitialized = True
         await self.init_loggers()
         await self.init_database()
     
     async def dispose(self):
-        """异步释放所有组件"""
+        """
+        异步释放所有工具
+        """
         if self.db_instance:
             await self.db_instance.dispose()
+            self.loggers['utils'].info("数据库连接已关闭")
+        self.isInitialized = False
 
     async def init_loggers(self):
-        """初始化所有 logger"""
+        """
+        初始化所有 logger
+        """
         self.loggers['utils'] = init_logger('utils', 'utils.log', logging.INFO, is_console=True)
+        logger_names = list(self.loggers.keys())
+        self.loggers['utils'].info(f"Logger 初始化完成, 共 {len(logger_names)} 个日志器: {logger_names}")
 
     async def init_database(self):
-        """初始化数据库连接"""
+        """
+        初始化数据库连接
+        """
         db_url = f"postgresql+psycopg_async://{settings.database.user}:{settings.database.password}@{settings.database.host}:{settings.database.port}/{settings.database.db}"
         self.db_instance = AsyncDatabase(db_url, self.loggers['utils'])
-
-
-# 全局初始化实例
-init_utils = InitUtils()
+        self.loggers['utils'].info(f"数据库连接初始化完成, 数据库地址: {db_url}")
+    
